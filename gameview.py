@@ -26,6 +26,9 @@ class GameView(arcade.View):
         self.left_pressed = False
         self.right_pressed = False
 
+        #camera
+        self.camera = arcade.camera.Camera2D()
+
         self.setup()
         self.pavimento()
         self.CreGravita()
@@ -39,7 +42,8 @@ class GameView(arcade.View):
         self.lista_player.append(self.player)
     
     def pavimento(self):
-        self.floor = arcade.SpriteSolidColor(SCREEN_WIDTH, 20, arcade.color.GREEN)
+        lungezza = 20000
+        self.floor = arcade.SpriteSolidColor(lungezza, 20, arcade.color.GREEN)
         self.floor.center_x = SCREEN_WIDTH / 2
         self.floor.center_y = 10 #posizionamento sul fondo
         self.floor.visible = False
@@ -57,29 +61,45 @@ class GameView(arcade.View):
     def on_draw(self):
         self.clear()
 
+        self.camera.use()
         self.lista_pavimento.draw()
         self.lista_player.draw()
     
     def on_update(self, delta_time):
         
-        change_x = 0
-        change_y = 0
+        self.player.change_x = 0
 
         if self.left_pressed:
-            change_x -= self.speed
+            self.player.change_x -= self.speed
         if self.right_pressed:
-            change_x += self.speed
-
-        # Applica movimento
-        self.player.center_x += change_x
-        self.player.center_y += change_y
+            self.player.change_x += self.speed
         
-        if change_x < 0: 
+        if self.player.change_x < 0: 
             self.player.scale = (-1*self.scale, self.scale)
-        elif change_x > 0:
+        elif self.player.change_x > 0:
             self.player.scale = (self.scale, self.scale)
+        
+        # target_x = self.player.center_x
+        # target_y = SCREEN_HEIGHT / 2
+
+        # self.camera.position = (target_x, target_y)
 
         self.physics_engine.update()
+
+        SCHERMO_CENTRO_X = SCREEN_WIDTH / 2
+        MARGINE_LATERALE = 50
+
+        limite_sinistro = self.camera.position.x - SCHERMO_CENTRO_X + MARGINE_LATERALE
+        limite_destro = self.camera.position.x + SCHERMO_CENTRO_X - MARGINE_LATERALE
+
+        nuova_pos_x = self.camera.position.x
+
+        if self.player.center_x > limite_destro:
+            nuova_pos_x += self.player.center_x - limite_destro
+        elif self.player.center_x < limite_sinistro:
+            nuova_pos_x -= limite_sinistro - self.player.center_x
+        
+        self.camera.position = (nuova_pos_x, self.camera.position.y)
 
     def on_key_press(self, tasto, modificatori):
 
