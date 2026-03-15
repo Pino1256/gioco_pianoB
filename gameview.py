@@ -1,4 +1,5 @@
 import arcade
+from sfondo import Parallax
 
 SCREEN_WIDTH = 1000
 SCREEN_HEIGHT = 600
@@ -18,6 +19,9 @@ class GameView(arcade.View):
 
         #pavimento
         self.lista_pavimento = arcade.SpriteList()
+
+        #sfondo
+        self.sfondo_parallax = Parallax()
 
         #gravita
         self.physics_engine = 0
@@ -62,6 +66,10 @@ class GameView(arcade.View):
         self.clear()
 
         self.camera.use()
+
+        self.sfondo_parallax.backgrounds.pos = self.camera.position
+        self.sfondo_parallax.backgrounds.draw()
+
         self.lista_pavimento.draw()
         self.lista_player.draw()
     
